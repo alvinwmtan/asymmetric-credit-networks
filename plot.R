@@ -2,47 +2,65 @@ library(tidyverse)
 library(here)
 library(Metrics)
 
+theme_set(theme_classic())
+
+###### Simulation 1 ######
+
 all_longs <- read_csv(here("all_longs.csv"))
 
-p <- ggplot(all_longs, aes(x = iter, y = value, col = variable)) +
+cum_plot <- ggplot(all_longs, aes(x = iter, y = value, col = variable)) +
   geom_point(alpha = .005, size = .1) +
   geom_smooth() +
-  theme_classic() +
   labs(x = "Iteration",
        y = "Cumulative proportion",
        col = "Equivalence class") +
   coord_cartesian(ylim = c(0, 0.25))
 
-ggsave("cum_plot.png", p, device = "png", 
+ggsave(here("plots", "cum_plot.png"), cum_plot, device = "png", 
        width = 12, height = 8, units = "cm")
 
-final_distribs <- read_csv(here("final_distribs.csv"))
+###### Simulation 2 ######
 
-# rmse <- final_distribs |> 
-#   group_by(sim) |> 
-#   summarise(rmse = rmse(value, estimated))
+sim_metrics_3 <- read_csv(here("sim_metrics_3.csv"))
 
-ggplot(rmse, aes(x = rmse)) +
-  geom_histogram()
+rmse_hist <- ggplot(sim_metrics_3, aes(x = rmse)) +
+  geom_histogram() +
+  labs(x = "RMSE",
+       y = "Number of simulations")
 
-# entropy <- function(distrib) {
-#   -1 * sum(distrib * log2(distrib))
-# }
-# 
-# entropies <- final_distribs |> 
-#   group_by(sim) |> 
-#   summarise(obs_ent = entropy(value),
-#             est_ent = entropy(estimated))
+ggsave(here("plots", "rmse_hist.png"), rmse_hist, device = "png", 
+       width = 12, height = 8, units = "cm")
 
-ggplot(entropies, aes(x = obs_ent, y = est_ent)) +
+entropy <- ggplot(sim_metrics_3, aes(x = value, y = estimated)) +
   geom_point() +
   geom_smooth(method = "lm") +
   geom_abline(slope = 1, intercept = 0,
               col = "grey", lty = "dashed") +
-  theme_classic()
+  theme_classic() +
+  labs(x = "Observed entropy",
+       y = "Predicted entropy")
 
-sim_metrics <- read_csv(here("sim_metrics.csv"))
+ggsave(here("plots", "entropy.png"), entropy, device = "png", 
+       width = 12, height = 8, units = "cm")
 
-ggplot(sim_metrics, aes(x = value, y = symmetry)) +
+sym_3 <- ggplot(sim_metrics_3, aes(x = value, y = symmetry)) +
   geom_point() +
-  geom_smooth(method = "lm", formula = "y ~ exp(x)")
+  geom_smooth(method = "lm", formula = "y ~ exp(x)") +
+  labs(x = "Observed entropy",
+       y = "Transition matrix symmetry")
+
+ggsave(here("plots", "sym_3.png"), sym_3, device = "png", 
+       width = 12, height = 8, units = "cm")
+
+###### Simulation 3 ######
+
+sim_metrics_5 <- read_csv(here("sim_metrics_5.csv"))
+
+sym_5 <- ggplot(sim_metrics_5, aes(x = value, y = symmetry)) +
+  geom_point() +
+  geom_smooth(method = "lm", formula = "y ~ exp(x)") +
+  labs(x = "Observed entropy",
+       y = "Transition matrix symmetry")
+
+ggsave(here("plots", "sym_5.png"), sym_5, device = "png", 
+       width = 12, height = 8, units = "cm")
